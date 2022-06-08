@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+    
+{% block content %}
+    <form action="/chatbot" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.question.label }}<br>
+        {{ form.question(size=32) }}<br>
+    </p>
+    <p>{{ form.submit() }}</p>
+    </form>
+{% endblock content%}
+
