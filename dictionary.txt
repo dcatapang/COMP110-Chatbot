@@ -1,0 +1,32 @@
+algorithm
+a step by step list of instructions that will solve a problem if executed
+Here is an example of an algorithm that computes the area of a square: (1) ask for the length, (2) square the length of the side, (3) display the area
+Here is another example of an algorithm that computes the area of a triangle: (1) ask for the width and height, (2) multiply the width and height then divide by 2, (3) display the area
+integer
+a whole number value
+Here is an example of an integer: 42
+Here is another example of an integer: -72
+double
+a decimal number value
+Here is an example of a double: 5.67
+Here is another example of a double: 73.0
+string
+a sequence of characters that is enclosed by quotation marks.
+Here is an example of a string: "Hello, World!"
+Here is another example of a string: "apple"
+data type
+a classification of an object in Python, which defines what values it can take and what operations can be performed on it.
+Here is an example of a data type: Integer (1, 2, -72, etc.)
+Here is another example of a data type: String ("Hello, World!", "apple", etc.)
+operator
+a special token that represents computations like addition, multiplication, and division.
+Here is an example of an operator: Addition (+)
+Here is another example of an operator: Subtraction (-)
+modulus operator
+an operator that works on integers and yields the remainder of the first integer divided by the second integer. It is represented by %.
+Here is an example: 7 % 2 = 1
+Here is another example: 10 % 4 = 2
+variable
+a name that refers to a value
+Here is an example of a variable: x
+Here is another example of a variable: len
