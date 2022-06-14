@@ -16,8 +16,11 @@ for line in rdfile:
 	terms[term] = [definition, first_example, second_example]
 
 
+words_asked = []
+status = [False]
 
-finished = 'Have a nice day!'
+
+final_message = 'Have a nice day!'
 misunderstood = 'Sorry, I do not understand your question.'
 global current_term
 current_term = ""
@@ -57,26 +60,31 @@ def response(question):
 	needs_example = full_question == "i don't understand" or full_question == "can you give me an example?"
 	needs_second_example = full_question == "i still don't understand" or "can you give me another example?"
 	finished = full_question == "thanks!"
-	word_given = current_term != ""
 
 
-	if question:
-		current_term = split_question[3]
-		return split_question[2] + " " + split_question[3] + " " + split_question[1] + " " + terms[current_term][0] 
-	elif needs_example and word_given:
-		response_list = terms[current_term]
+	if finished:
+		return final_message
+	elif question:
+		add_word(split_question[3])
+		status[0] = True
+		return split_question[2] + " " + split_question[3] + " " + split_question[1] + " " + terms[split_question[3]][0] 
+	elif needs_example and get_word_status():
+		response_list = terms[get_term()]
 		return response_list[1]
-	elif needs_second_example and word_given:
-		response_list = terms[current_term]
+	elif needs_second_example and get_word_status():
+		response_list = terms[get_term()]
 		return response_list[2]
-	elif finished:
-		response_list = terms[current_term]
-		return response_list[3]
 	else:
 		return misunderstood
 
+def add_word(term):
+	words_asked.append(term)
 
+def get_term():
+	return words_asked[-1]
 
+def get_word_status():
+	return status[0]
 
 
 

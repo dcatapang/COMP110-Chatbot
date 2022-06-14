@@ -1,0 +1,14 @@
+.even{
+    text-align: right;
+    background-color: lightblue;
+}
+
+.odd{
+    text-align: left;
+    background-color: gray;
+}
+
+.question{
+    text-align: bottom;
+    position: fixed;
+}
