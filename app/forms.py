@@ -3,5 +3,5 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 class QuestionForm(FlaskForm):
-    question = StringField('Question', validators=[DataRequired()])
-    submit = SubmitField('Submit question!')
+    question = StringField(validators=[DataRequired()], render_kw={'autofocus': True, 'placeholder': "What is your question?"})
+    submit = SubmitField('Send!')

@@ -57,17 +57,16 @@ def response(question):
 	except IndexError:
 		return misunderstood
 
-	needs_example = full_question == "i don't understand" or full_question == "can you give me an example?"
-	needs_second_example = full_question == "i still don't understand" or "can you give me another example?"
+	needs_example = (full_question == "i don't understand" or full_question == "can you give me an example?")
+	needs_second_example = (full_question == "i still don't understand" or full_question == "can you give me another example?")
 	finished = full_question == "thanks!"
-
 
 	if finished:
 		return final_message
 	elif question:
 		add_word(split_question[3])
 		status[0] = True
-		return split_question[2] + " " + split_question[3] + " " + split_question[1] + " " + terms[split_question[3]][0] 
+		return split_question[2] + " " + split_question[3] + " " + split_question[1] + " " + terms[split_question[3]][0]
 	elif needs_example and get_word_status():
 		response_list = terms[get_term()]
 		return response_list[1]
@@ -76,6 +75,7 @@ def response(question):
 		return response_list[2]
 	else:
 		return misunderstood
+
 
 def add_word(term):
 	words_asked.append(term)
