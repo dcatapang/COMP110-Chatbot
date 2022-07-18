@@ -1,3 +1,4 @@
+from spacy import displacy, load
 from spacy.lang.en import English
 from spacy.matcher import PhraseMatcher, Matcher
 import app.phrasematch_training as pt
@@ -40,12 +41,12 @@ def get_assign_definition(parsed_statement):
         str_val = var_val.s
 
     code_statement = ast.unparse(parsed_statement)
-    final_statement = code_statement + " assigns the value of " + str_val + " into a variable named " + var_name + "."
+    final_statement = code_statement + " assigns the value of " + str_val + " into a variable named " + str(var_name) + "."
     
     return final_statement
 
 def response(question):
-    nlp = English()
+    nlp = load("en_core_web_sm")
     matcher = PhraseMatcher(nlp.vocab, attr="SHAPE")
 
     pt.test_all(matcher, nlp)
@@ -77,6 +78,11 @@ def response(question):
         with doc.retokenize() as retokenizer:
             attrs = {"POS": "X"}
             retokenizer.merge(doc[start_code:end_code], attrs=attrs)
+
+        
+        graph = displacy.render(doc, style="dep")
+        with open("graph.html", 'w') as graph_file:
+            graph_file.write(graph)
 
         #creates another matcher to see "what does code mean"
         define_matcher = Matcher(nlp.vocab)
