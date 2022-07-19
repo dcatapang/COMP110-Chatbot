@@ -3,6 +3,7 @@ from spacy.lang.en import English
 from spacy.matcher import PhraseMatcher, Matcher
 import app.phrasematch_training as pt
 import ast
+import re
 
 def get_assign_definition(parsed_statement):
     var_name = parsed_statement.body[0].targets[0].id
@@ -47,30 +48,30 @@ def get_assign_definition(parsed_statement):
 
 def response(question):
     nlp = load("en_core_web_sm")
-    matcher = PhraseMatcher(nlp.vocab, attr="SHAPE")
+    #matcher = PhraseMatcher(nlp.vocab, attr="SHAPE")
 
-    pt.test_all(matcher, nlp)
+    #pt.test_all(matcher, nlp)
         
     doc = nlp(question)
-    tokens = question.split()
+    #tokens = question.split()
 
     code_found = ""
     code_status = False
 
-
     start_code = 0
     end_code = 0
 
-    for match_id, start, end in matcher(doc):
-        print("Matched based for initialization:", doc[start:end])
-        code_found = ""
-        for i in range(start, end):
-            code_found = code_found + " " + tokens[i]
-
-        start_code = start
-        end_code = end
-        code_found = code_found[1:]
+    expression = r"\w+\s*=\s*\w+(\s*[\+\-\*\/]\s*\w+)*"
+    for match in re.finditer(expression, doc.text):
+        start, end = match.span()
+        span = doc.char_span(start, end)
+        # This is a Span object or None if match doesn't map to valid token sequence
+        if span is not None:
+            print("Found match:", span.text)
+        code_found = span.text
         code_status = True
+        start_code = span[0].i
+        end_code = span[-1].i + 1
 
 
     if code_status:
@@ -95,7 +96,6 @@ def response(question):
             print("Matched based to define:", doc[start:end])
             define_status = True
     
-        print("code_found:", code_found)
         if define_status:
             parsed_statement = ast.parse(code_found, mode='exec')
             if isinstance(parsed_statement.body[0], ast.Assign):
