@@ -1,7 +1,6 @@
 from spacy import displacy, load
 from spacy.lang.en import English
 from spacy.matcher import PhraseMatcher, Matcher
-import app.phrasematch_training as pt
 import ast
 import re
 
@@ -42,18 +41,30 @@ def get_assign_definition(parsed_statement):
         str_val = var_val.s
 
     code_statement = ast.unparse(parsed_statement)
-    final_statement = code_statement + " assigns the value of " + str_val + " into a variable named " + str(var_name) + "."
+    final_statement = code_statement + " assigns the value of " + str(str_val) + " into a variable named " + str(var_name) + "."
     
     return final_statement
 
-def response(question):
-    nlp = load("en_core_web_sm")
-    #matcher = PhraseMatcher(nlp.vocab, attr="SHAPE")
+def create_dictionary():
+    
+    dictionary = {}
+    
+    rfile = open("dictionary.txt", "r")
+    for line in rfile:
+        term = line.strip()
+        dictionary[term] = {}
+        dictionary[term]['definition'] = rfile.readline().strip()
+        dictionary[term]['example'] = rfile.readline().strip()
 
-    #pt.test_all(matcher, nlp)
+    return dictionary
+
+
+
+def response(question):
+    nlp = load("en_core_web_trf")
         
     doc = nlp(question)
-    #tokens = question.split()
+
 
     code_found = ""
     code_status = False
@@ -61,7 +72,7 @@ def response(question):
     start_code = 0
     end_code = 0
 
-    expression = r"\w+\s*=\s*\w+(\s*[\+\-\*\/]\s*\w+)*"
+    expression = r"\w+\s*=\s*\w+(\s*[\+\-\*\/]\s*\w+){0,1}"
     for match in re.finditer(expression, doc.text):
         start, end = match.span()
         span = doc.char_span(start, end)
@@ -80,10 +91,6 @@ def response(question):
             attrs = {"POS": "X"}
             retokenizer.merge(doc[start_code:end_code], attrs=attrs)
 
-        
-        graph = displacy.render(doc, style="dep")
-        with open("graph.html", 'w') as graph_file:
-            graph_file.write(graph)
 
         #creates another matcher to see "what does code mean"
         define_matcher = Matcher(nlp.vocab)
@@ -102,5 +109,128 @@ def response(question):
                 return get_assign_definition(parsed_statement)
         else:
             return "Sorry, I do not understand your question."
+    
+    #if no code was found, analyze the sentence without the code
     else:
-        return "Sorry, I do not understand your question." #change output
+
+        topics = ["algorithm", "string", "integer", "data type", "operator", "double", "modulus operator", "variable"]
+        verbs = ["construct", "create", "make"]
+        nsubj_possibilities = ["example", "definition", "meaning"]
+        doc = nlp(question)
+
+        roots = []
+
+        sentence_dictionary = {"attr": "", "nsubj": "", "advmod": "", "root": "", "prep": "", "pobj": "", "dobj": "", "topic": ""}
+        topic_dictionary = create_dictionary()
+
+        verb = ""
+        attr = ""
+        topic = ""
+        advmod = ""
+
+        needs_example = False
+        needs_definition = False
+        topic_not_supported = False
+        needs_how_to = False
+
+        #finds the root in the sentence
+        for tok in doc:
+            if tok.dep_ == 'ROOT':
+                roots.append(tok)
+                verb = tok.text
+                if verb == "'s":
+                    verb = "is"
+                sp_verb = nlp(verb)
+                for token in sp_verb:
+                    verb_lemma = token.lemma_
+                sentence_dictionary["root"] = verb_lemma
+
+        for tok in roots[0].children:
+            print(tok.text, tok.lemma_, tok.dep_)
+
+            #check if there is an nsubj
+            if tok.dep_ == "attr":
+                has_attribute = True
+                attr = tok.text
+                sentence_dictionary["attr"] = attr
+
+
+            #collect what nsubj is
+            if tok.dep_ == "nsubj":
+                sentence_dictionary["topic"] = tok.text
+                sentence_dictionary["nsubj"] = tok.text
+
+            if tok.dep_ == "advmod":
+                advmod = tok.text
+                sentence_dictionary["advmod"] = advmod
+                has_adv = True
+            
+            if tok.dep_ == "dobj":
+                sentence_dictionary["topic"] = tok.text
+
+        #check if nsubj is in topic list and there is an attribute
+        
+        if sentence_dictionary["attr"] != "":
+            if sentence_dictionary["attr"].lower() == "what" and (sentence_dictionary["root"] == "be"):
+                if sentence_dictionary["topic"] not in topics:
+                    if sentence_dictionary["topic"].lower() == "example":
+                        needs_example = True
+                    elif sentence_dictionary["topic"].lower() == "meaning" or sentence_dictionary["topic"].lower() == "definition":
+                        needs_definition = True
+                    else:
+                        needs_definition = True
+
+
+                    if sentence_dictionary["nsubj"].lower() in nsubj_possibilities:
+                        #check if there is a prep based on nsubj
+                        new_roots = [tok for tok in doc if tok.dep_ == 'nsubj']
+                        for tok in new_roots[0].children:    
+                        #check if there is an nsubj
+                            if tok.dep_ == "prep":
+                                prep_roots = [tok for tok in doc if tok.dep_ == 'prep']
+                                for tok in prep_roots[0].children:
+                                    if tok.dep_ == "pobj":
+                                        topic = tok.text
+                                        sentence_dictionary["topic"] = topic
+                else:
+                    needs_definition = True
+        else:
+            if sentence_dictionary["advmod"].lower() == "how" and sentence_dictionary["root"].lower() in verbs:
+                needs_how_to = True
+
+        
+        #checks if the lemmatized version of the topic is in the list
+        sp_topic = nlp(sentence_dictionary["topic"])
+        lemma_topic = ""
+        for token in sp_topic:
+            lemma_topic = token.lemma_
+        
+        if lemma_topic not in topics:
+            topic_not_supported = True
+    
+        #if user is asking for example
+        if needs_example:
+            if topic_not_supported:
+                return "Look at Google for the example of " + sentence_dictionary["topic"]
+            else:
+                return topic_dictionary[lemma_topic]["example"]
+        #if user is asking for definition
+        elif needs_definition:
+            if topic_not_supported:
+                return "Look at Google for the definition of " + sentence_dictionary["topic"]
+            else:
+                return topic_dictionary[lemma_topic]["definition"]
+        #if user is asking how to do something
+        elif needs_how_to:
+            vowels = ["a", "e", "i", "o", "u"]
+            if lemma_topic[0].lower() in vowels:
+                prep = "an"
+            else:
+                prep = "a"
+
+            if topic_not_supported:
+                return "Look at Google on " + sentence_dictionary["advmod"] + " to "  + sentence_dictionary["root"] + " " + prep + " " + sentence_dictionary["topic"]
+            else:
+                return "This is " + sentence_dictionary["advmod"] + " to " + sentence_dictionary["root"] + " " + prep + " " + lemma_topic
+        else:
+            return "You should probably ask Google."
