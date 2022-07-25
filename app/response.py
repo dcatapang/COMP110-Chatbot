@@ -114,7 +114,7 @@ def response(question):
     else:
 
         topics = ["algorithm", "string", "integer", "data type", "operator", "double", "modulus operator", "variable"]
-        verbs = ["construct", "create", "make"]
+        verbs = ["construct", "create", "make", "do", "find"]
         nsubj_possibilities = ["example", "definition", "meaning"]
         doc = nlp(question)
 

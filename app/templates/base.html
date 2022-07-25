@@ -4,17 +4,11 @@
         <title>Welcome to COMP 110 Chatbot</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/messages.css') }}">
-        <script>
-            function scroll_to_bottom(){
-                var objDiv = document.getElementById("message-container");
-                objDiv.scrollTop = objDiv.scrollHeight;
-            }
-        </script>
     </head>
     
     <body>
         <div class="chat-header">PytheyBuddy</div>
-        <div id="message-container" onload="scroll_to_bottom();">
+        <div id="message-container">
         {% for post in posts %}
             {% if loop.index is even %}
             <div class="even"><p><span>{{ post }}</b></span></p></div>
@@ -22,6 +16,11 @@
             <div class="odd"><p><span><strong>{{ post }}</b></span></strong></p></div>
             {% endif %}
         {% endfor %}
+        <span id = "endOfMessages"></span>
+        <script>
+            const elem = document.getElementById("endOfMessages");
+            elem.scrollIntoView(false);
+        </script>
         </div>
         {% block content %}{% endblock content%}
     </body>
