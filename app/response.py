@@ -246,6 +246,8 @@ def response(question):
                 return "Look at Google on " + sentence_dictionary["advmod"] + " to "  + sentence_dictionary["root"] + " " + prep + " " + sentence_dictionary["topic"]
             else:
                 return "This is " + sentence_dictionary["advmod"] + " to " + sentence_dictionary["root"] + " " + prep + " " + lemma_topic
+        elif needs_event:
+            return "event needed"
         else:
             return "You should probably ask Google." 
 
