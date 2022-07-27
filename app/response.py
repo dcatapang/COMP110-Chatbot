@@ -115,23 +115,25 @@ def response(question):
 
         topics = ["algorithm", "string", "integer", "data type", "operator", "double", "modulus operator", "variable"]
         verbs = ["construct", "create", "make", "do", "find"]
-        nsubj_possibilities = ["example", "definition", "meaning"]
+        nsubj_possibilities = ["example", "definition", "meaning", "PSA", "project", "quizz"]
         doc = nlp(question)
 
         roots = []
 
-        sentence_dictionary = {"attr": "", "nsubj": "", "advmod": "", "root": "", "prep": "", "pobj": "", "dobj": "", "topic": ""}
+        sentence_dictionary = {"attr": "", "nsubj": "", "advmod": "", "root": "", "prep": "", "pobj": "", "dobj": "", "topic": "", "acomp":"" , "nummod":"" }
         topic_dictionary = create_dictionary()
 
         verb = ""
         attr = ""
         topic = ""
         advmod = ""
+        acomp = ""
 
         needs_example = False
         needs_definition = False
         topic_not_supported = False
-        needs_how_to = False
+        needs_how_to = False 
+        needs_event = False
 
         #finds the root in the sentence
         for tok in doc:
@@ -153,7 +155,11 @@ def response(question):
                 has_attribute = True
                 attr = tok.text
                 sentence_dictionary["attr"] = attr
-
+            
+            if tok.dep == "acomp":
+                acomp = tok.text 
+                sentence_dictionary["acomp"] = acomp
+                has_acomp = True 
 
             #collect what nsubj is
             if tok.dep_ == "nsubj":
@@ -163,11 +169,12 @@ def response(question):
             if tok.dep_ == "advmod":
                 advmod = tok.text
                 sentence_dictionary["advmod"] = advmod
-                has_adv = True
+                has_adv = True 
             
             if tok.dep_ == "dobj":
                 sentence_dictionary["topic"] = tok.text
-
+        
+            
         #check if nsubj is in topic list and there is an attribute
         
         if sentence_dictionary["attr"] != "":
@@ -192,14 +199,21 @@ def response(question):
                                     if tok.dep_ == "pobj":
                                         topic = tok.text
                                         sentence_dictionary["topic"] = topic
+                            elif tok.dep_ == "nummod": 
+                                nummod_roots = [tok for tok in doc if tok.dep_ =='nummod']
+                                for tok in nummod_roots[0].children:
+                                    if tok.dep_ == "nummod":
+                                        sentence_dictionary["nummod"] = tok.text
                 else:
                     needs_definition = True
         else:
             if sentence_dictionary["advmod"].lower() == "how" and sentence_dictionary["root"].lower() in verbs:
                 needs_how_to = True
+            elif sentence_dictionary["advmod"].lower() == "when": 
+                needs_event = True   
 
-        
-        #checks if the lemmatized version of the topic is in the list
+        #checks if the lemmatized version of the
+        # topic is in the list
         sp_topic = nlp(sentence_dictionary["topic"])
         lemma_topic = ""
         for token in sp_topic:
@@ -233,4 +247,7 @@ def response(question):
             else:
                 return "This is " + sentence_dictionary["advmod"] + " to " + sentence_dictionary["root"] + " " + prep + " " + lemma_topic
         else:
-            return "You should probably ask Google."
+            return "You should probably ask Google." 
+
+
+        
