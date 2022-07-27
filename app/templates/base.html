@@ -1,7 +1,7 @@
 <!doctype html>
 <html>
     <head>
-        <title>Welcome to COMP 110 Chatbot</title>
+        <title>PytheyBuddy</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/messages.css') }}">
     </head>
@@ -10,10 +10,10 @@
         <div class="chat-header">PytheyBuddy</div>
         <div id="message-container">
         {% for post in posts %}
-            {% if loop.index is even %}
-            <div class="even"><p><span>{{ post }}</b></span></p></div>
+            {% if post.user_talking != "chatbot" %}
+            <div class="even"><p><span>{{ post.body }}</b></span></p></div>
             {% else %}
-            <div class="odd"><p><span><strong>{{ post }}</b></span></strong></p></div>
+            <div class="odd"><p><span><strong>{{ post.body }}</b></span></strong></p></div>
             {% endif %}
         {% endfor %}
         <span id = "endOfMessages"></span>

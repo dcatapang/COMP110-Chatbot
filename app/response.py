@@ -3,6 +3,7 @@ from spacy.lang.en import English
 from spacy.matcher import PhraseMatcher, Matcher
 import ast
 import re
+from app import nlp
 
 def get_assign_definition(parsed_statement):
     var_name = parsed_statement.body[0].targets[0].id
@@ -61,7 +62,6 @@ def create_dictionary():
 
 
 def response(question):
-    nlp = load("en_core_web_trf")
         
     doc = nlp(question)
 
