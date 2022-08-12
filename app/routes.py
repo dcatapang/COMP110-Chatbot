@@ -129,10 +129,10 @@ def add_how_to():
 	unknown_questions = UnknownHowQuestions.query.all()
 	if form.validate_on_submit():
 		#delete from unknown term db
-		question = HowTo(question=form.question.data, instruction=form.instruction.data)
+		question = HowTo(verb=form.verb.data, term=form.term.data, instruction=form.instruction.data)
 		db.session.add(question)
 		db.session.commit()
-		return redirect(url_for('add_terms'))
+		return redirect(url_for('add_how_to'))
 	return render_template('addhowto.html', title='Add Instructions to PytheyBuddy', form=form, questions=unknown_questions)
 
 @login_required
@@ -140,6 +140,12 @@ def add_how_to():
 def view_questions():
 	unknown_questions = UnknownQuestions.query.all()
 	return render_template('unknownquestions.html', title='Questions Unanswered', questions=unknown_questions)
+
+@login_required
+@app.route('/studentsmessages', methods=['GET', 'POST'])
+def view_messages():
+	users = User.query.filter_by(professor_status=False).all()
+	return render_template('viewmessages.html', users=users)
 
 @app.route('/logout')
 def logout():

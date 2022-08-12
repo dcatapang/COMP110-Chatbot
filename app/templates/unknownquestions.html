@@ -1,6 +1,13 @@
+{% extends "profhome.html" %}
+
+{% block content %}
+
 <div id="unknown-terms">
-    <p>Students asked for these questions but did not have an answer</p>
+    <p><b>Students asked for these questions but did not have an answer:</b></p>
         {% for question in questions %}
             <ul>{{ question.question }}</ul>
         {% endfor %}
+            
     </div>
+
+{% endblock content %}

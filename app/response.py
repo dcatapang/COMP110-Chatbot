@@ -239,7 +239,8 @@ def response(question):
                 prep = "a"
 
             question = "how to " + sentence_dictionary["root"].lower() + " " + prep + " " + lemma_topic
-            how_asked = HowTo.query.filter_by(question=question).first()
+            how_asked = HowTo.query.filter_by(verb=sentence_dictionary["root"].lower(), term=lemma_topic).first()
+            how_not_supported = False
             if how_asked is None:
                 how_not_supported = True
 
@@ -249,7 +250,7 @@ def response(question):
                 db.session.commit()
                 return ("Look at your textbook on " + sentence_dictionary["advmod"] + " to "  + sentence_dictionary["root"] + " " + prep + " " + sentence_dictionary["topic"], "False")
             else:
-                return ("This is " + sentence_dictionary["advmod"] + " to " + sentence_dictionary["root"] + " " + prep + " " + lemma_topic, "True")
+                return ("This is " + sentence_dictionary["advmod"] + " to " + sentence_dictionary["root"] + " " + prep + " " + lemma_topic + ": " + how_asked.get_instruction(), "True")
         elif needs_event:
             return ("needs event time", "True")
         else:

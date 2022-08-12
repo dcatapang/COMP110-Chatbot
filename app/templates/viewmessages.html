@@ -1,0 +1,20 @@
+{% extends "profhome.html" %}
+
+{% block content %}
+
+<div id="unknown-terms">
+    <p>View students' messages</p>
+        {% for user in users %}
+            <p><h2>{{ user.username }}</h2></p>
+            {% for post in user.posts.all() %}
+                {% if post.user_talking != "chatbot" %}
+                    <div class="even"><p><span>User: {{ post.body }}</b></span></p></div>
+                {% else %}
+                    <div class="odd"><p><span><strong>Chatbot: {{ post.body }}</b></span></strong></p></div>
+                {% endif %}
+            {% endfor %}
+            <hr>
+        {% endfor %}
+</div>
+
+{% endblock content %}

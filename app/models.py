@@ -60,11 +60,9 @@ class Terms(db.Model):
 
 class HowTo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    question = db.Column(db.String(200))
-    instruction = db.Column(db.String(250))
-
-    def get_question(self):
-        return self.term
+    verb = db.Column(db.String(200))
+    term = db.Column(db.String(200))
+    instruction = db.Column(db.String(600))
 
     def get_instruction(self):
         return self.instruction

@@ -41,6 +41,7 @@ class DictionaryForm(FlaskForm):
     submit = SubmitField("Add definition")
 
 class HowToForm(FlaskForm):
-    question = StringField('How To Questions', validators=[DataRequired()])
+    verb = StringField('Action', validators=[DataRequired()])
+    term = StringField('Topic', validators=[DataRequired()])
     instruction = StringField('Instruction', validators=[DataRequired()])
     submit = SubmitField("Add definition")

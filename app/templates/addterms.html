@@ -1,12 +1,8 @@
-<!doctype html>
+{% extends "profhome.html" %}
 
-<html>
+{% block content %}
 
-    <head>
-        <title>Add terms to PytheyBuddy</title>
-    </head>
 
-    <body>
         <div id="title-header"><p>Add Terms to PytheyBuddy Dictionary</p></div>
         <div id="input-containter">
             <form action="" method="post" novalidate>
@@ -27,6 +23,7 @@
             {% endfor %}
         </div>
         <hr>
-    </body>
 
-</html>
+
+{% endblock content %}
+
