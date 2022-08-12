@@ -6,7 +6,7 @@ body {
 #message-container {
     position: fixed;
     top: 48px;
-    left : 10px;
+    left : 17px;
     height: 575px;
     width: 500px;
     background: whitesmoke;
@@ -34,6 +34,7 @@ body {
     max-width: 50%;
     left: -5px;
     font-family: "Times New Roman", Times, serif;
+    overflow-wrap: break-word;
 }
 
 .odd {
@@ -42,7 +43,6 @@ body {
     padding-left: 10px;
     padding-right: 10px;
     text-align: left;
-    padding-top: 5px;
 }
 
 .odd span{
@@ -55,6 +55,7 @@ body {
     padding-right: 7px;
     background: lightgray;
     font-family: "Times New Roman", Times, serif;
+    overflow-wrap: break-word;
 }
 
 .question-input {
@@ -64,10 +65,9 @@ body {
     height: 40px;
     padding-left: 10px;
     padding-top: 10px;
-    
 }
 
-.chat-header{
+#chat-header{
     text-align: center;
     text-shadow: 1px black;
     font-family: "Lucida Console", "Courier New", monospace;
@@ -82,10 +82,14 @@ body {
 
 }
 
+#logout{
+    text-align: right;
+}
+
 .send-button{
     position: fixed;
     right: 10px;
-    top: 650px;
+    top: 625px;
     padding-right: 10px;
     width: 440px;
 }

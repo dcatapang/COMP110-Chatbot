@@ -1,0 +1,69 @@
+
+
+    <head>
+        <title>PytheyBuddy Registration</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+    </head>
+    <body>
+    <div id="title-header"><p>Register for PytheyBuddy</p></div>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=55) }}<br>
+            {% for error in form.username.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.email.label }}<br>
+            {{ form.email(size=55) }}<br>
+            {% for error in form.email.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password.label }}<br>
+            {{ form.password(size=55) }}<br>
+            {% for error in form.password.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.password2.label }}<br>
+            {{ form.password2(size=55) }}<br>
+            {% for error in form.password2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.professor_status() }} {{ form.professor_status.label }}
+        </p>
+        <p>
+            {{ form.professor_invite_code.label }}<br>
+            {{ form.professor_invite_code(size=55) }}<br>
+            {% for error in form.password2.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.terms_and_conditions() }} By clicking on this checkbox, I agree to having all my interactions with PytheyBuddy recorded for research purposes. This is to ensure that I have the best experience possible.<br>
+            {% for error in form.terms_and_conditions.errors %}
+            <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+
+    </form>
+    <hr>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <ul>
+            {% for message in messages %}
+            {{ message }}
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% endwith %}
+    <p><a href="{{ url_for('login') }}">Back to Sign In!</a></p>
+</body>

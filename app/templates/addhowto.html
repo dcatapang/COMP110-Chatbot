@@ -1,0 +1,19 @@
+<p>here we can add how to instructions!</p>
+
+<div id="input-containter">
+    <form action="" method="post" novalidate>
+        {{ form.hidden_tag() }}
+            <p>{{ form.question.label }}<br>
+            {{ form.question(size=55) }} </p>
+            <p>{{ form.instruction.label }}<br>
+            {{ form.instruction(size=55) }}</p>
+            <p>{{ form.submit() }}</p>
+    </form>
+</div>
+
+<div id="unknown-terms">
+<p>Students asked for these terms but did not have a definition</p>
+    {% for question in questions %}
+        <ul>{{ question.question }}</ul>
+    {% endfor %}
+</div>

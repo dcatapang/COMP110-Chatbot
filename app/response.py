@@ -3,7 +3,9 @@ from spacy.lang.en import English
 from spacy.matcher import PhraseMatcher, Matcher
 import ast
 import re
-from app import nlp
+from app import nlp, db
+from app.models import Terms, UnknownHowQuestions, UnknownTerms, HowTo, UnknownQuestions
+
 
 def get_assign_definition(parsed_statement):
     var_name = parsed_statement.body[0].targets[0].id
@@ -46,25 +48,10 @@ def get_assign_definition(parsed_statement):
     
     return final_statement
 
-def create_dictionary():
-    
-    dictionary = {}
-    
-    rfile = open("dictionary.txt", "r")
-    for line in rfile:
-        term = line.strip()
-        dictionary[term] = {}
-        dictionary[term]['definition'] = rfile.readline().strip()
-        dictionary[term]['example'] = rfile.readline().strip()
-
-    return dictionary
-
-
 
 def response(question):
         
     doc = nlp(question)
-
 
     code_found = ""
     code_status = False
@@ -113,15 +100,13 @@ def response(question):
     #if no code was found, analyze the sentence without the code
     else:
 
-        topics = ["algorithm", "string", "integer", "data type", "operator", "double", "modulus operator", "variable"]
-        verbs = ["construct", "create", "make", "do", "find"]
         nsubj_possibilities = ["example", "definition", "meaning"]
         doc = nlp(question)
 
         roots = []
+        verbs = ["construct", "create", "make", "do", "find"]
 
-        sentence_dictionary = {"attr": "", "nsubj": "", "advmod": "", "root": "", "prep": "", "pobj": "", "dobj": "", "topic": ""}
-        topic_dictionary = create_dictionary()
+        sentence_dictionary = {"attr": "", "nsubj": "", "advmod": "", "root": "", "prep": "", "pobj": "", "dobj": "", "acomp": "", "topic": "", "nummod": ""}
 
         verb = ""
         attr = ""
@@ -132,6 +117,7 @@ def response(question):
         needs_definition = False
         topic_not_supported = False
         needs_how_to = False
+        needs_event = False
 
         #finds the root in the sentence
         for tok in doc:
@@ -154,6 +140,9 @@ def response(question):
                 attr = tok.text
                 sentence_dictionary["attr"] = attr
 
+            if tok.dep == "acomp":
+                acomp = tok.text 
+                sentence_dictionary["acomp"] = acomp
 
             #collect what nsubj is
             if tok.dep_ == "nsubj":
@@ -172,7 +161,7 @@ def response(question):
         
         if sentence_dictionary["attr"] != "":
             if sentence_dictionary["attr"].lower() == "what" and (sentence_dictionary["root"] == "be"):
-                if sentence_dictionary["topic"] not in topics:
+                if Terms.query.filter_by(term=sentence_dictionary["topic"].lower()).first() is None:
                     if sentence_dictionary["topic"].lower() == "example":
                         needs_example = True
                     elif sentence_dictionary["topic"].lower() == "meaning" or sentence_dictionary["topic"].lower() == "definition":
@@ -192,45 +181,79 @@ def response(question):
                                     if tok.dep_ == "pobj":
                                         topic = tok.text
                                         sentence_dictionary["topic"] = topic
+                            elif tok.dep_ == "nummod": 
+                                nummod_roots = [tok for tok in doc if tok.dep_ =='nummod']
+                                for tok in nummod_roots[0].children:
+                                    if tok.dep_ == "nummod":
+                                        sentence_dictionary["nummod"] = tok.text
                 else:
                     needs_definition = True
         else:
-            if sentence_dictionary["advmod"].lower() == "how" and sentence_dictionary["root"].lower() in verbs:
+            if sentence_dictionary["advmod"].lower() == "how":
                 needs_how_to = True
+            elif sentence_dictionary["advmod"].lower() == "when": 
+                needs_event = True   
 
-        
         #checks if the lemmatized version of the topic is in the list
         sp_topic = nlp(sentence_dictionary["topic"])
         lemma_topic = ""
         for token in sp_topic:
             lemma_topic = token.lemma_
         
-        if lemma_topic not in topics:
-            topic_not_supported = True
-    
+        
+
+        vowels = ["a", "e", "i", "o", "u"]
+        if len(lemma_topic) != 0 and lemma_topic[0].lower() in vowels:
+            prep = "an"
+        else:
+            prep = "a"
+
         #if user is asking for example
         if needs_example:
+            topic_asked = Terms.query.filter_by(term=lemma_topic).first()
+            if topic_asked is None:
+                topic_not_supported = True
             if topic_not_supported:
-                return "Look at Google for the example of " + sentence_dictionary["topic"]
+                return ("Look at your textbook for examples of " + sentence_dictionary["topic"], "False")
             else:
-                return topic_dictionary[lemma_topic]["example"]
+                return ("Here is an example of " + prep + " " + lemma_topic + ": " + Terms.query.filter_by(term=lemma_topic).first().get_example(), "True")
         #if user is asking for definition
         elif needs_definition:
+            topic_asked = Terms.query.filter_by(term=lemma_topic).first()
+            if topic_asked is None:
+                topic_not_supported = True
             if topic_not_supported:
-                return "Look at Google for the definition of " + sentence_dictionary["topic"]
+                unknown_topic = UnknownTerms(term=lemma_topic)
+                db.session.add(unknown_topic)
+                db.session.commit()
+                return ("Look at your textbook for the definition of " + sentence_dictionary["topic"], "False")
             else:
-                return topic_dictionary[lemma_topic]["definition"]
+                return (prep.capitalize() + " " + lemma_topic + " " + " is " + Terms.query.filter_by(term=lemma_topic).first().get_definition(), "True")
         #if user is asking how to do something
         elif needs_how_to:
+            
             vowels = ["a", "e", "i", "o", "u"]
             if lemma_topic[0].lower() in vowels:
                 prep = "an"
             else:
                 prep = "a"
 
-            if topic_not_supported:
-                return "Look at Google on " + sentence_dictionary["advmod"] + " to "  + sentence_dictionary["root"] + " " + prep + " " + sentence_dictionary["topic"]
+            question = "how to " + sentence_dictionary["root"].lower() + " " + prep + " " + lemma_topic
+            how_asked = HowTo.query.filter_by(question=question).first()
+            if how_asked is None:
+                how_not_supported = True
+
+            if how_not_supported or sentence_dictionary["root"].lower() not in verbs:
+                unknown_question = UnknownHowQuestions(question=question)
+                db.session.add(unknown_question)
+                db.session.commit()
+                return ("Look at your textbook on " + sentence_dictionary["advmod"] + " to "  + sentence_dictionary["root"] + " " + prep + " " + sentence_dictionary["topic"], "False")
             else:
-                return "This is " + sentence_dictionary["advmod"] + " to " + sentence_dictionary["root"] + " " + prep + " " + lemma_topic
+                return ("This is " + sentence_dictionary["advmod"] + " to " + sentence_dictionary["root"] + " " + prep + " " + lemma_topic, "True")
+        elif needs_event:
+            return ("needs event time", "True")
         else:
-            return "You should probably ask Google."
+            unknown_question = UnknownQuestions(question=question)
+            db.session.add(unknown_question)
+            db.session.commit()
+            return ("I do not know how to respond to that.", "")

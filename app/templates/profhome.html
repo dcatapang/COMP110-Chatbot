@@ -1,0 +1,23 @@
+<!doctype html>
+
+<html>
+    <head>
+        <title>PytheyBuddy Admin Selection</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/profhome.css') }}">
+    </head>
+    
+    <body>
+        <div id="chat-header">PytheyBuddy Administration Center</div>
+        <div id="options">
+            <hr>
+            <p>What would you like to do today? </p>
+            <p><a href="{{ url_for('add_terms') }}">Add terms and examples.</a></p>
+            <p><a href="{{ url_for('add_dates') }}">Add due dates for students.</a></p>
+            <p><a href="{{ url_for('add_how_to') }}">Add instructions for students.</a></p>
+            <p><a href="{{ url_for('view_questions') }}">See questions that were unanswered</a></p>
+            <p><a href="{{ url_for('logout') }}">Log out!</a></p>
+        </div>
+    </body>
+</html>
+
+

@@ -1,0 +1,25 @@
+body {
+    width: 450px;
+    background: lightblue;
+    font-family: "Times New Roman", Times, serif;
+}
+
+#chat-header{
+    position: relative;
+    text-align: center;
+    text-shadow: 1px black;
+    font-family: "Lucida Console", "Courier New", monospace;
+    font-weight: bold;
+    font-size: 25px;
+    width: 525px;
+    height: 30px;
+    position: fixed;
+    padding-left: 10px;
+    padding-top: 5px;
+    color: black;
+}
+
+#options{
+    position: relative;
+    text-align: center;
+}

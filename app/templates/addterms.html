@@ -1,0 +1,32 @@
+<!doctype html>
+
+<html>
+
+    <head>
+        <title>Add terms to PytheyBuddy</title>
+    </head>
+
+    <body>
+        <div id="title-header"><p>Add Terms to PytheyBuddy Dictionary</p></div>
+        <div id="input-containter">
+            <form action="" method="post" novalidate>
+                {{ form.hidden_tag() }}
+                    <p>{{ form.term.label }}<br>
+                    {{ form.term(size=55) }} </p>
+                    <p>{{ form.definition.label }}<br>
+                    {{ form.definition(size=55) }}</p>
+                    <p>{{ form.example.label }}<br>
+                        {{ form.example(size=55) }} </p>
+                    <p>{{ form.submit() }}</p>
+            </form>
+        </div>
+        <div id="unknown-terms">
+            <p>Students asked for these instructions but did not have an answer</p>
+            {% for term in terms %}
+                <ul>{{ term.term }}</ul>
+            {% endfor %}
+        </div>
+        <hr>
+    </body>
+
+</html>

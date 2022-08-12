@@ -2,12 +2,12 @@
 <html>
     <head>
         <title>PytheyBuddy</title>
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
         <link rel="stylesheet" href="{{ url_for('static', filename='css/messages.css') }}">
     </head>
     
     <body>
-        <div class="chat-header">PytheyBuddy</div>
+        <div id="chat-header">PytheyBuddy</div>
+        <div id="logout"><a href="{{ url_for('logout') }}">Log out!</a></div>
         <div id="message-container">
         {% for post in posts %}
             {% if post.user_talking != "chatbot" %}

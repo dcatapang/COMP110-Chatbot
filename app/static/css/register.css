@@ -1,0 +1,21 @@
+body {
+    width: 450px;
+    background: lightblue
+}
+
+#title-header{
+    text-align: left;
+    text-shadow: 1px black;
+    font-family: "Lucida Console", "Courier New", monospace;
+    font-weight: bold;
+    font-size: 25px;
+    height: 25px;
+    padding-left: 14px;
+    color: black;
+
+}
+
+#input-container{
+    padding-left: 20px;
+    padding-top: 5px;
+}

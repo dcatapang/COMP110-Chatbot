@@ -15,6 +15,6 @@ login.login_view = 'login'
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-nlp = load("en_core_web_trf")
+nlp = load("en_core_web_lg")
 
 from app import routes, models
